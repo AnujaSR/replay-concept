@@ -11,11 +11,14 @@ import marimo
 __generated_with = "0.23.2"
 app = marimo.App(width="medium", auto_download=["html"])
 
+with app.setup:
+    import pandas as pd
+    import pytest as pt
+    import seaborn as sns
+
 
 @app.cell
 def _():
-    import pandas as pd
-    import pytest as pt
 
     def alphabetical_player(mystery_word, guessed_letters, rounds_left):
         assert rounds_left > 0
@@ -62,10 +65,11 @@ def _():
 
     def letter_probability_player(mystery_word, guessed_letters, rounds_left):
         alphabet = "eariotnslcudpmhgbfywkvxzjq"
-        for char in alphabet:
-            if char in guessed_letters:
-                continue
-            return char
+        if rounds_left>0:
+            for char in alphabet:
+                if char in guessed_letters:
+                    continue
+                return char
 
     def test_letter_probability_player(
         rounds_left,
@@ -215,7 +219,6 @@ def _():
         alphabetical_player,
         letter_probability_player,
         orchestrator,
-        pt,
         researcher,
         test_ing_ly_player,
         vowel_first_player,
@@ -223,7 +226,7 @@ def _():
 
 
 @app.cell
-def _(alphabetical_player, pt):
+def _(alphabetical_player):
     @pt.mark.parametrize('rounds_left', range(26))
     def test_alphabetical_player(rounds_left):
         # Should you make it go through all words/word lengths, like why are we doing this and how do you determine wht to put as the args, this seems kind of obvious.
@@ -279,7 +282,6 @@ def _(
     researcher,
     vowel_first_player,
 ):
-    import seaborn as sns
 
     stats_table = researcher(
         orchestrator,
