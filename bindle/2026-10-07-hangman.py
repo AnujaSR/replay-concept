@@ -18,7 +18,7 @@ def _():
     import pytest as pt
 
     def alphabetical_player(mystery_word, guessed_letters, rounds_left):
-        assert rounds_left>0
+        assert rounds_left > 0
         alphabet = "abcdefghijklmnopqrstuvwxyz"
         if (
             rounds_left > 0
@@ -27,33 +27,7 @@ def _():
                 if char in guessed_letters:
                     continue
                 return char
-    '''
-    def test_alphabetical_player(rounds_left):
-        # Should you make it go through all words/word lengths, like why are we doing this and how do you determine wht to put as the args, this seems kind of obvious.
-        alphabet = "abcdefghijklmnopqrstuvwxyz"
-        guessed_letters = []
-        for i in range(len(alphabet)):
-            if rounds_left - i > 0:
-                assert (
-                    alphabetical_player(
-                        "?????", guessed_letters, rounds_left - i
-                    )
-                    == alphabet[i]
-                )
-                # mystery_word won't update but does that matter if algo doesn't depend on mystery_word at all?
-                guessed_letters.append(
-                    alphabetical_player(
-                        "?????", guessed_letters, rounds_left - i
-                    )
-                )
-            else:
-                assert (
-                    alphabetical_player(
-                        "?????", guessed_letters, rounds_left - i
-                    )
-                    == None
-                )
-    '''
+
     def vowel_first_player(mystery_word, guessed_letters, rounds_left):
         alphabet = "aeioubcdfghjklmnpqrstvwxyz"
         if rounds_left > 0:
