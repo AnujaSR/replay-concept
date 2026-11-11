@@ -28,10 +28,11 @@ def _(pd, sns):
             "prob_found_solution": df["found_solution"],
         }
     )
-    relevant_data = relevant_data.groupby("replay_gen").mean()
+    relevant_data = relevant_data.groupby("replay_gen").mean().reset_index()
 
     sns.lineplot(relevant_data)
-    return
+    relevant_data
+    return (relevant_data,)
 
 
 @app.cell
@@ -285,6 +286,7 @@ def _(pd, random):
         replay_gen = columns[0]
         found_solution = columns[1]
 
+
         request = player(
             [dataset[replay_gen].iloc[0], dataset[replay_gen].iloc[-1]],
             prev_replays,
@@ -423,19 +425,28 @@ def _(
 
 
 @app.cell
-def _(random):
-    random.seed(524288)
-    random.random()
-    return
+def _(pd):
+    # Evaluation system. Tests whether the guessed del_prob_max is correct, and how many replays each player takes to find del_prob_max. 
+
+    def evaluator(player_list: list, orchestrator: pd.DataFrame, dataset: pd.DataFrame) -> pd.DataFrame:
+        player_data = pd.DataFrame({'player': [], 'correct_del_p': [], 'num_tries': []})
+        correct_gen = 39
+
+        for player in player_list:
+            results = orchestrator(dataset, player)
+            guessed_gen = results.loc[len(results)-1, 'replay_gen']
+            add = [player.__name__, correct_gen==guessed_gen, len(results)-1]
+            player_data.loc[len(player_data)] = add
+
+
+        return player_data
+
+    return (evaluator,)
 
 
 @app.cell
-def _(player_data):
-    # Evaluation system, then other player
-
-    def evaluator(player_list, orchestrator):
-        return player_data
-
+def _(brute_force_player, evaluator, one_replay_per_call, relevant_data):
+    evaluator([brute_force_player], one_replay_per_call, relevant_data)
     return
 
 
