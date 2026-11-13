@@ -9,7 +9,6 @@ def _():
     import pandas as pd
     import seaborn as sns
     import random as random
-    import matplotlib.pyplot as plt
 
     return pd, random, sns
 
@@ -175,7 +174,6 @@ def _(pd, random):
         replay_gen = columns[0]
         found_solution = columns[1]
 
-
         request = player(
             [dataset[replay_gen].iloc[0], dataset[replay_gen].iloc[-1]],
             prev_replays,
@@ -183,9 +181,9 @@ def _(pd, random):
 
         gen = request[1]
 
-        while (
-            request[0] == False
-        ):  # Give it the outcome if it's not guessing del_prob_max
+        while not request[
+            0
+        ]:  # Give it the outcome if it's not guessing del_prob_max
             gen = request[1]
             prob_success = dataset.loc[
                 dataset[replay_gen] == gen, found_solution
@@ -295,19 +293,30 @@ def _(brute_force_player, one_replay_per_call, pd):
 
 @app.cell
 def _(pd):
-    # Evaluation system. Tests whether the guessed del_prob_max is correct, and how many replays each player takes to find del_prob_max. 
+    # Evaluation system. Tests whether the guessed del_prob_max is correct, and how many replays each player takes to find del_prob_max.
 
-    def evaluator(player_list: list, orchestrator: pd.DataFrame, dataset: pd.DataFrame, numtrials: int) -> pd.DataFrame:
-        player_data = pd.DataFrame({'player': [], 'trial': [], 'correct_del_p': [], 'num_tries': []})
+    def evaluator(
+        player_list: list,
+        orchestrator: pd.DataFrame,
+        dataset: pd.DataFrame,
+        numtrials: int,
+    ) -> pd.DataFrame:
+        player_data = pd.DataFrame(
+            {"player": [], "trial": [], "correct_del_p": [], "num_tries": []}
+        )
         correct_gen = 39
 
         for trial in range(numtrials):
             for player in player_list:
                 results = orchestrator(dataset, player, trial)
-                guessed_gen = results.loc[len(results)-1, 'replay_gen']
-                add = [player.__name__, trial, (correct_gen==guessed_gen).astype(int), len(results)-1]
+                guessed_gen = results.loc[len(results) - 1, "replay_gen"]
+                add = [
+                    player.__name__,
+                    trial,
+                    (correct_gen == guessed_gen).astype(int),
+                    len(results) - 1,
+                ]
                 player_data.loc[len(player_data)] = add
-
 
         return player_data
 
@@ -324,20 +333,17 @@ def _(brute_force_player, evaluator, one_replay_per_call, relevant_data):
 def _(pd):
     def analyze_data(player_data: pd.DataFrame) -> pd.DataFrame:
         data = pd.DataFrame()
-        data = player_data.groupby('player', as_index = False).agg(
-            num_trials = ('trial', 'max'),
-            num_successes = ('correct_del_p', 'sum'),
-            avg_num_replays = ('num_tries', 'mean')
+        data = player_data.groupby("player", as_index=False).agg(
+            num_trials=("trial", "max"),
+            num_successes=("correct_del_p", "sum"),
+            avg_num_replays=("num_tries", "mean"),
         )
         # Trials are indexed starting from 0, fixing max error caused by that
-        data['num_trials'] = data['num_trials']+1
+        data["num_trials"] = data["num_trials"] + 1
 
-        data['success_rate'] = data['num_successes']/data['num_trials']
-    
+        data["success_rate"] = data["num_successes"] / data["num_trials"]
 
         return data
-
-
 
     return (analyze_data,)
 
@@ -350,7 +356,9 @@ def _(
     one_replay_per_call,
     relevant_data,
 ):
-    player_data = evaluator([brute_force_player], one_replay_per_call, relevant_data, 20)
+    player_data = evaluator(
+        [brute_force_player], one_replay_per_call, relevant_data, 20
+    )
     analyze_data(player_data)
     return
 
